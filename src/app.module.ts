@@ -1,9 +1,7 @@
-import { Inject, Module } from "@nestjs/common";
-import { AppController } from "./app.controller";
-import { AppService } from "./app.service";
+import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import databaseConfig from "./config/database.config";
+import databaseConfig from "./common/config/database.config";
 import { UsersModule } from "./users/users.module";
 import { IamModule } from "./iam/iam.module";
 
@@ -30,8 +28,8 @@ import { IamModule } from "./iam/iam.module";
     UsersModule,
     IamModule
   ],
-  controllers: [AppController],
-  providers: [AppService]
+  controllers: [],
+  providers: []
 })
 export class AppModule {
 }

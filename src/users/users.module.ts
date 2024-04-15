@@ -4,15 +4,15 @@ import { User } from "./entities/user.entity";
 import { UsersService } from "./users.service";
 import { UsersController } from "./users.controller";
 import { HttpModule } from "@nestjs/axios";
-import { UsersExchange } from "./users.exchange";
+import { IamModule } from "../iam/iam.module";
 
 @Module({
   imports:[
     TypeOrmModule.forFeature([User]),
-    HttpModule
+    IamModule
   ],
   controllers:[UsersController],
-  providers:[UsersService, UsersExchange]
+  providers:[UsersService]
 })
 export class UsersModule {
 }

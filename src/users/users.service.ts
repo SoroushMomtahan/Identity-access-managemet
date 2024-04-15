@@ -5,21 +5,20 @@ import { Like, Repository } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { FindUserDto } from "./dto/find-user.dto";
-import { HttpService } from "@nestjs/axios";
-import { UsersExchange } from "./users.exchange";
+import { HashingService } from "../iam/hashing/hashing.service";
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    private readonly usersCommunication:UsersExchange
+    private readonly hashingService:HashingService
   ) {
   }
 
   public async create(createUserDto: CreateUserDto) {
     const {password, ...userProperties} = createUserDto;
-    const encryptedPassword = await this.usersCommunication.passwordEncryptor(password);
+    const encryptedPassword = await this.hashingService.hash(password);
     const user = this.userRepository.create({password:encryptedPassword, ...userProperties});
     return this.userRepository.save(user);
   }
@@ -55,14 +54,6 @@ export class UsersService {
   public async removeOne(id: number) {
     const user = await this.userRepository.findOneBy({ id });
     return this.userRepository.remove(user);
-  }
-
-  public findOneByUsername(username: string) {
-    const user = this.userRepository.findOneBy({ username });
-    if (!user) {
-      throw new NotFoundException();
-    }
-    return user;
   }
 
 }
