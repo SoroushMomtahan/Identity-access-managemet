@@ -8,8 +8,10 @@ import { ConfigModule } from "@nestjs/config";
 import jwtConfig from "./config/jwt.config";
 import { AuthenticationGuard } from "./authentication/authentication.guard";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { User } from "../users/entities/user.entity";
+import { User } from "../users/entity/user.entity";
 import { AuthorizationGuard } from "./authorization/authorization.guard";
+import { TokenStorageService } from "./authentication/token-storage.service";
+
 @Module({
   imports:[
     ConfigModule.forFeature(jwtConfig),
@@ -21,6 +23,7 @@ import { AuthorizationGuard } from "./authorization/authorization.guard";
   ],
   providers:[
     AuthenticationService,
+    TokenStorageService,
     {
       provide:HashingService,
       useClass:BcryptService
@@ -32,7 +35,8 @@ import { AuthorizationGuard } from "./authorization/authorization.guard";
     {
       provide:'APP_GUARD',
       useClass:AuthorizationGuard
-    }
+    },
+
   ],
   exports:[HashingService]
 })

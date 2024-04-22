@@ -1,21 +1,22 @@
-import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from "@nestjs/common";
-import { Observable } from "rxjs";
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
 import { Request } from "express";
 import { Reflector } from "@nestjs/core";
 import { IS_PUBLIC_KEY } from "../../common/decorator/public.decorator";
-import applicationConfig from "../../common/config/application.config";
-import { ConfigType } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
+import { REQUEST_USER_KEY } from "../constant/iam.constant";
+import { TestGuard } from "../guard/test.guard";
 
 @Injectable()
 export class AuthenticationGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
-    private readonly jwtService:JwtService
+    private readonly jwtService:JwtService,
+    // private readonly testGuard:TestGuard
   ) {
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    // console.log(this.testGuard);
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
@@ -28,8 +29,13 @@ export class AuthenticationGuard implements CanActivate {
     if (!token) {
       throw new UnauthorizedException();
     }
-    request['user'] = await this.jwtService.verifyAsync(token);
-    return true;
+    try {
+      request[REQUEST_USER_KEY] = await this.jwtService.verifyAsync(token);
+    }catch (e){
+      throw new UnauthorizedException();
+    }
+    return request[REQUEST_USER_KEY].email;
+
   }
 
   private extractTokenFromHeader(request: Request) {

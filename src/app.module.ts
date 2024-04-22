@@ -4,6 +4,9 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import databaseConfig from "./common/config/database.config";
 import { UsersModule } from "./users/users.module";
 import { IamModule } from "./iam/iam.module";
+import { CoursesModule } from "./courses/courses.module";
+import { CommentsModule } from "./comments/comments.module";
+import { HttpUserModule } from "./http-user/http-user.module";
 
 @Module({
   imports: [
@@ -26,7 +29,10 @@ import { IamModule } from "./iam/iam.module";
       inject: [ConfigService]
     }),
     UsersModule,
-    IamModule
+    IamModule,
+    CoursesModule,
+    CommentsModule,
+    HttpUserModule
   ],
   controllers: [],
   providers: []

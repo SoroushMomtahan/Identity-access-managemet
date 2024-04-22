@@ -1,32 +1,50 @@
-import { Body, Controller, Get, Post } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, HttpStatus, Post } from "@nestjs/common";
 import { AuthenticationService } from "./authentication.service";
 import { SignInDto } from "./dto/sign-in.dto";
 import { SignUpDto } from "./dto/sign-up.dto";
 import { Public } from "../../common/decorator/public.decorator";
 import { JwtService } from "@nestjs/jwt";
+import process from "process";
+import { RefreshTokenDto } from "./dto/refresh-token.dto";
+import { ActiveUser } from "../../common/decorator/active-user.decorator";
 
-@Controller('authentication')
+@Controller("authentication")
 export class AuthenticationController {
   constructor(
-    private readonly authenticationService:AuthenticationService,
-    private readonly jwtService:JwtService
-    ) {
+    private readonly authenticationService: AuthenticationService
+  ) {
   }
+
   @Public()
-  @Post('sign-in')
-  public async signIn(@Body() signInDto:SignInDto){
-    const user = await this.authenticationService.signIn(signInDto);
-    return this.jwtCreator({ sub: user.id, username: user.username })
-  }
-  @Public()
-  @Post('sign-up')
+  @Post("sign-up")
   public async signUp(@Body() signUpDto: SignUpDto) {
-    const user =  await this.authenticationService.signUp(signUpDto);
-    return await this.jwtCreator({ sub: user.id, username: user.username });
+
+    const [accessToken, refreshToken] = await this.authenticationService.signUp(signUpDto);
+    return {
+      accessToken,
+      refreshToken
+    };
   }
-  private async jwtCreator(payload:{sub:number, username:string}){
-    return{
-      access_token: await this.jwtService.signAsync(payload)
-    }
+
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @Post("sign-in")
+  public async signIn(@Body() signInDto: SignInDto) {
+    const [accessToken, refreshToken] = await this.authenticationService.signIn(signInDto);
+    return {
+      accessToken,
+      refreshToken
+    };
+  }
+
+  public signOut(){}
+  @Public()
+  @Post("refresh-token")
+  public async refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
+    const [accessToken, refreshToken] = await this.authenticationService.refreshToken(refreshTokenDto);
+    return {
+      accessToken,
+      refreshToken
+    };
   }
 }

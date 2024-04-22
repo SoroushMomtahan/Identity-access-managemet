@@ -1,6 +1,6 @@
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { User } from "../../users/entities/user.entity";
+import { User } from "../../users/entity/user.entity";
 import { Repository } from "typeorm";
 import { Reflector } from "@nestjs/core";
 import { Role } from "../../common/enum/role.enum";
@@ -31,7 +31,7 @@ export class AuthorizationGuard implements CanActivate {
         throw new ForbiddenException();
       }
       if (!roles){
-        return false;
+        return true;
       }
       const id = request['user'].sub;
       const user = await this.userRepository.findOneBy(id);
